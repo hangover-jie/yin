@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致最爱的你 - 跨年倒计时</title>
+    <style>
+        /* 基础样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #fff;
+        }
+
+        /* 星空背景 */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 内容容器 */
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* 倒计时样式 */
+        #countdown {
+            display: flex;
+            gap: 20px;
+        }
+
+        .time-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            min-width: 80px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .num {
+            font-size: 3rem;
+            font-weight: bold;
+            display: block;
+            color: #ff4d4d;
+        }
+
+        .label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        /* 底部情话 */
+        .message {
+            margin-top: 40px;
+            font-size: 1.2rem;
+            font-style: italic;
+            opacity: 0.8;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        /* 跨年时刻特殊样式 */
+        #surprise {
+            display: none;
+            font-size: 4rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="container">
+        <div id="normal-content">
+            <h1 id="title">距离 2026 年还有</h1>
+            <div id="countdown">
+                <div class="time-box"><span class="num" id="days">00</span><span class="label">天</span></div>
+                <div class="time-box"><span class="num" id="hours">00</span><span class="label">时</span></div>
+                <div class="time-box"><span class="num" id="minutes">00</span><span class="label">分</span></div>
+                <div class="time-box"><span class="num" id="seconds">00</span><span class="label">秒</span></div>
+            </div>
+            <p class="message">“何其有幸，年岁并进。新的一年，也想和你一起去看世界。”</p>
+        </div>
+
+        <div id="surprise">
+            ❤️ 新年快乐！❤️<br>
+            <span style="font-size: 1.5rem;">岁岁常欢愉，年年皆胜意。</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // 1. 设置目标时间 (2026年1月1日0点)
+        const targetDate = new Date('January 1, 2026 00:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                // 跨年时刻触发
+                document.getElementById('normal-content').style.display = 'none';
+                document.getElementById('surprise').style.display = 'block';
+                launchFireworks();
+                clearInterval(timer);
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = d.toString().padStart(2, '0');
+            document.getElementById('hours').innerText = h.toString().padStart(2, '0');
+            document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
+            document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // 2. 烟花效果函数
+        function launchFireworks() {
+            var duration = 15 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // 3. 简单的背景星空效果
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 0.5
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                star.y += star.speed;
+                if (star.y > canvas.height) star.y = 0;
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
